@@ -8,6 +8,13 @@ const repoList = document.querySelector(".repo-list");
 const allReposInfo = document.querySelector(".repos");
 //selects the section element w/class="repo-data"
 const repoData = document.querySelector(".repo-data");
+// selects "Back to Repo Gallery" button
+const viewReposButton = document.querySelector(".view-repos");
+//selects the input with the placeholder "Search by name"
+const filterInput = document.querySelector(".filter-repos");
+
+
+//FETCH USER DATA FROM GITHUB API DOCUMENTATION & JSON FILE
 
 //async function used to collect my profile data from GitHub acct
 const getProfileInfo = async function() {
@@ -44,8 +51,14 @@ const displayGHInfo = function(profileData) {
     overview.append(div);
 };
 
+
+//FETCH REPO DATA FROM GITHUB API DOCUMENTATION & JSON FILE
+
 //async function used to collect my GitHub repos
 const getRepos = async function() {
+    
+    filterInput.classList.remove("hide"); //unhides <input> element Search box placeholder "Search by name"
+    
     const reposList = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     const reposData = await reposList.json();
     //console.log(reposData);
@@ -64,6 +77,9 @@ const displayRepoInfo = function(repos) {
         repoList.append(li); //displays & adds repo to end of list
     }
 };
+
+
+//DISPLAYS SPECIFIC REPO INFORMATION FOR EACH REPO USING GITHUB API DOCUMENTATION & JSON FILE
 
 //add a click event listener w/event parameter for ul class repo-list element
 repoList.addEventListener("click", function(e) {
@@ -115,6 +131,38 @@ const displaySpecificRepoInfo = function(repoInfo, languages) {
     `;
     
     repoData.append(div);
-    repoData.classList.remove("hide");
-    allReposInfo.classList.add("hide");
+    repoData.classList.remove("hide"); //HTML <section> element w/class="repo-data"
+    allReposInfo.classList.add("hide"); //HTML <section> element w/class="repos"
+
+    viewReposButton.classList.remove("hide"); //"BAck to Repo Gallery" Button
 };
+
+
+//CREATES A DYNAMIC SEARCH FOR EACH LETTER & EVENT LISTENER FOR "BACK TO REPO GALLERY" BUTTON
+
+//creates a click Event Listener on the "Back to Repo Gallery" Button
+viewReposButton.addEventListener("click", function() {
+    allReposInfo.classList.remove("hide"); //HTML <section> element w/class="repos"
+    repoData.classList.add("hide"); //HTML <section> w/class="repo-data"
+    viewReposButton.classList.add("hide"); //"Back to Repo Gallery" Button
+});
+
+//creates a input Event Listener to Search for each letter entered into Search Box
+filterInput.addEventListener("input", function(e) {
+    const inputSearchText = e.target.value;
+    //console.log(filterInput); //test to see if text input is captured from Search Box
+
+    const repos = document.querySelectorAll(".repo"); //selects all elements on page w/class="repo"
+    const searchTextLower = inputSearchText.toLowerCase(); //assigns search text to lowercase input value
+
+    for(const repo of repos) {
+        const inputTextLower = repo.innerText.toLowerCase(); //assigns the innerText of each repo to a lowercase value
+        
+        //checks to see if lowercase repo text incl. the lowercase search text
+        if(inputTextLower.includes(searchTextLower)) {
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        }
+    }
+});
